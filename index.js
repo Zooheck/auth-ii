@@ -1,7 +1,12 @@
+require('dotenv').config();
+
 const express = require('express');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
 
 const db = require('./dbconfig.js')
 
@@ -12,6 +17,24 @@ server.use(morgan('dev'));
 server.use(cors())
 
 const UserFuncs = require('./helpers/userHelpers.js')
+
+const secret = process.env.JWT_SECRET || 'ayyyyyyy'
+
+server.post('/api/register', async (req, res) => {
+    let user = req.body;
+
+    const hashPassword = bcrypt.hashSync(user.password, 8);
+
+    user.password = hashPassword;
+
+    try {
+        const newUser = await UserFuncs.add(user)
+
+        res.status(201).json(newUser);
+    } catch (error) {
+        res.status(500).json(error)
+    }
+});
 
 server.get('/api/users', async (req, res) => {
     try {
