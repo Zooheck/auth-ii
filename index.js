@@ -88,7 +88,7 @@ function restricted(req, res, next) {
     }
 }
 
-server.get('/api/users', async (req, res) => {
+server.get('/api/users', restricted, async (req, res) => {
     try {
         const users = await UserFuncs.find();
 
